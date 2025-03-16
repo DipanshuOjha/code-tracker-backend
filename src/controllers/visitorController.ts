@@ -3,18 +3,30 @@ import Visitor from '../models/Visitor';
 
 export const logVisit = async (req: Request, res: Response) => {
   try {
-    const { action, handles, path } = req.body;
-    
+    console.log('Attempting to log visit with data:', {
+      ip: req.ip || req.socket.remoteAddress,
+      action: req.body.action,
+      handles: req.body.handles,
+      path: req.body.path
+    });
+
     const visitorLog = await Visitor.create({
       ipAddress: req.ip || req.socket.remoteAddress,
-      action,
-      handles,
-      path,
+      action: req.body.action,
+      handles: req.body.handles,
+      path: req.body.path,
       userAgent: req.headers['user-agent']
     });
 
+    console.log('Successfully logged visit:', visitorLog);
     res.status(201).json(visitorLog);
   } catch (error: any) {
+    console.error('Error logging visit:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
     res.status(500).json({ error: error.message || 'Failed to log visitor' });
   }
 };
